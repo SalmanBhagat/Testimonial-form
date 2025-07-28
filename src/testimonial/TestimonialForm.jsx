@@ -72,10 +72,10 @@ function TestimonialForm() {
         </div>
         <div className="mb-3">
           <label className="form-label">Click to upload</label>
-          <div className="d-flex justify-content-between align-items-start">
+          <div className="d-flex justify-content-between align-items-start gap-4">
             <input type="file" className="form-control w-50" onChange={handleImage} />
           {selectedImg && (
-            <img style={{objectFit: "contain", height: "100%", borderRadius: "6px"}} src={selectedImg} alt="Img" height={200} width={300}/>
+            <img style={{objectFit: "contain", height: "100%", borderRadius: "6px", flex: "1", minWidth: "200px"}} src={selectedImg} alt="Img" height={200} />
           )}
           </div>
           {errors.image && <p>{errors.image.error}</p>}
