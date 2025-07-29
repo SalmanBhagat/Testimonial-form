@@ -22,6 +22,7 @@ function TestimonialForm() {
     handleSubmit,
     formState: { errors },
     setValue,
+    watch,
   } = useForm({ resolver: zodResolver(schema) });
 
   const onSubmit = (data) => {
@@ -88,10 +89,10 @@ function TestimonialForm() {
             {...register("status")}
           />
           {errors.status && <p>{errors.name.status}</p>}
-          <label className="form-check-label">Status-Inactive</label>
+          <label className="form-check-label">Status - {watch("status") ? "Active" : "Inactive"}</label>
         </div>
         <button type="submit" className="btn btn-primary w-100">
-          Submit
+          Send
         </button>
       </form>
     </div>
