@@ -3,10 +3,11 @@ import z, { includes } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useState } from "react";
+import axios from "axios";
 
 const schema = z.object({
-  name: z.string().min(1, { error: "Enter Your Name" }),
-  description: z.string().min(1, { error: "Enter Description" }),
+  name: z.string().min(1, { message: "Enter Your Name" }),
+  description: z.string().min(1, { message: "Enter Description" }),
   status: z.boolean().transform((val) => (val ? "A" : "I")),
   image: z.instanceof(File).refine((file) => file.type.startsWith("image/"), {
     message: "Only image files are allowed",
@@ -25,7 +26,23 @@ function TestimonialForm() {
     watch,
   } = useForm({ resolver: zodResolver(schema) });
 
+  const formAPI = "https://car-parking.emaadinfotech.in/api/testimonial-save"
+
+  
   const onSubmit = (data) => {
+
+    const formData = new FormData();
+    formData.append("name",data.name),
+    formData.append("description",data.description),
+    formData.append("image",data.image),
+    formData.append("status",data.status),
+    
+    axios.post(formAPI, formData).then((res) => {
+      console.log(res);
+    }).catch((err) => {
+      console.log(err);
+    })
+
     console.log(data);
   };
 
@@ -34,9 +51,9 @@ function TestimonialForm() {
 
     const fileTypes = ["image/png","image/jpeg","image/gif"];
 
-    const fileType = File.type
+    // const fileType = File.type
     
-    if (fileTypes.includes(fileType)) {
+    if (fileTypes.includes(File.type)) {
       
       setSelectedImg(URL.createObjectURL(File))
       setValue("image", File);
@@ -45,8 +62,6 @@ function TestimonialForm() {
     else{
       window.alert("Please Selected : Png, Jpeg, Gif Image File Type");
     }
-
-
 
     console.log(input.target.files[0]);
   };
@@ -60,7 +75,7 @@ function TestimonialForm() {
         <div className="mb-3">
           <label className="form-label">Name</label>
           <input type="text" className="form-control" {...register("name")} />
-          {errors.name && <p>{errors.name.error}</p>}
+          {errors.name && <p className="text-danger mt-2">{errors.name.message}</p>}
         </div>
         <div className="mb-3">
           <label className="form-label">Description</label>
@@ -69,7 +84,7 @@ function TestimonialForm() {
             rows="4"
             {...register("description")}
           />
-          {errors.description && <p>{errors.description.error}</p>}
+          {errors.description && <p className="text-danger mt-2">{errors.description.message}</p>}
         </div>
         <div className="mb-3">
           <label className="form-label">Click to upload</label>
@@ -79,7 +94,7 @@ function TestimonialForm() {
             <img style={{objectFit: "contain", height: "100%", borderRadius: "6px", flex: "1", minWidth: "200px"}} src={selectedImg} alt="Img" height={200} />
           )}
           </div>
-          {errors.image && <p>{errors.image.error}</p>}
+          {errors.image && <p className="text-danger mt-2">{errors.image.message}</p>}
         </div>
         <div className="mb-3 form-check">
           <input
