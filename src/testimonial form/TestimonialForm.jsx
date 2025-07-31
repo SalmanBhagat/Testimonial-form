@@ -4,6 +4,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useState } from "react";
 import axios from "axios";
+import { useNavigate } from "react-router-dom";
 
 const schema = z.object({
   name: z.string().min(1, { message: "Enter Your Name" }),
@@ -17,6 +18,8 @@ const schema = z.object({
 function TestimonialForm() {
 
   const [selectedImg, setSelectedImg] = useState("");
+
+  const navigateList = useNavigate()
 
   const {
     register,
@@ -39,6 +42,7 @@ function TestimonialForm() {
     
     axios.post(formAPI, formData).then((res) => {
       console.log(res);
+      navigateList("/list")
     }).catch((err) => {
       console.log(err);
     })
