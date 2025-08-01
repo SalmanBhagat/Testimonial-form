@@ -1,10 +1,12 @@
 import styles from "./testimonialForm.module.css";
-import z, { includes } from "zod";
+import { toast } from "react-toastify";
+import {z} from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import { ClipLoader } from "react-spinners";
 
 const schema = z.object({
   name: z.string().min(1, { message: "Enter Your Name" }),
@@ -20,6 +22,7 @@ const schema = z.object({
 function TestimonialForm() {
 
   const [selectedImg, setSelectedImg] = useState("");
+  const [loading, setLoading] = useState(false);
   const navigateList = useNavigate()
 
   const {
@@ -40,16 +43,26 @@ function TestimonialForm() {
     formData.append("description",data.description),
     formData.append("image",data.image),
     formData.append("status",data.status),
+
+    setLoading(true);
     
     axios.post(formAPI, formData).then((res) => {
       console.log(res);
-      navigateList("/list")
+      if(res.data.status == "error"){
+        toast.error(res.data.message.join());
+      }else if(res.data.status == "success"){
+        toast.success("data successfully saved on Server");
+        navigateList("/list")
+      }
+      setLoading(false)
     }).catch((err) => {
       console.log(err);
+      setLoading(false);
     })
     console.log(data);
   };
 
+  // 
   const handleImage = (input) => {
     const File = input.target.files[0];
 
@@ -63,9 +76,10 @@ function TestimonialForm() {
     }
     else{
       window.alert("Please Selected : Png, Jpeg, Gif Image File Type");
+      // toast.error(res.data.message.join());
     }
 
-    console.log(input.target.files[0]);
+    // console.log(input.target.files[0]);
   };
 
   return (
@@ -73,6 +87,10 @@ function TestimonialForm() {
       <div className={styles.header}>
         <h2 className="text-center">Testimonials Form</h2>
       </div>
+      {/* Loader */}
+      {loading ? <div className="position-absolute top-50 start-50 translate-middle">
+          <ClipLoader color="#148f84" size={150} />
+        </div> : 
       <form onSubmit={handleSubmit(onSubmit)}>
         <div className="mb-3">
           <label className="form-label">Name</label>
@@ -111,7 +129,7 @@ function TestimonialForm() {
         <button type="submit" className="btn btn-primary w-100">
           Send
         </button>
-      </form>
+      </form>}
     </div>
   );
 }

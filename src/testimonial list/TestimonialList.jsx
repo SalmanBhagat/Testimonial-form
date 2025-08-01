@@ -2,12 +2,16 @@ import { useEffect, useState } from "react";
 import Modal from "@mui/material/Modal";
 import axios from "axios";
 import { ClipLoader } from "react-spinners";
+import { Pagination } from "@mui/material";
 
 function TestimonialList() {
   const [open, setOpen] = useState(false);
   const [testimonials, setTestimonials] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [search, setSearch] = useState("")
+  const [search, setSearch] = useState("");
+  const [limit, setLimit] = useState(12)
+  const [total, setTotal] = useState("")
+  const [page, setPage] = useState(1)
 
   // const testimonials = [
   //   {
@@ -39,32 +43,34 @@ function TestimonialList() {
   useEffect(() => {
     setLoading(true);
     axios
-      .post("https://car-parking.emaadinfotech.in/api/testimonial-data", {
+      .post("https://car-parking.emaadinfotech.in/api/testimonial-data?page=" + page, {
         sort_order: "DESC",
         search_filed: search,
-        limit_per_page: "10",
+        limit_per_page: limit,
       })
       .then((res) => {
         console.log(res);
         setLoading(false);
         if (res.data.status == "success") {
           setTestimonials(res.data.data.data || []);
+          setTotal(res.data.data.total);
+          // console.log(res.data.data.total);
         }
       })
       .catch((err) => {
         console.log(err);
         setLoading(false);
       });
-  }, [search]);
+  }, [search, page]);
 
   return (
     <div>
       <div className="container my-5">
         <h2 className="text-center mb-4">Testimonials list</h2>
         {/* Search input */}
-          <div className="mb-3">
+        <div className="mb-3">
           <input
-          onChange={(e) => setSearch(e.target.value)}
+            onChange={(e) => setSearch(e.target.value)}
             type="search"
             className="form-control"
             placeholder="Search..."
@@ -76,7 +82,9 @@ function TestimonialList() {
           {loading && <ClipLoader color="#148f84" size={150} />}
         </div>
         {/* Data No Found */}
-        {testimonials?.length == 0 && <h4 className="text-center fs-1 text-danger">Data Not Found!</h4>}
+        {testimonials?.length == 0 && (
+          <h4 className="text-center fs-1 text-danger">Data Not Found!</h4>
+        )}
         <div className="row g-4">
           {testimonials.map((item) => (
             <div key={item.id} className="col-md-4">
@@ -92,7 +100,16 @@ function TestimonialList() {
                 />
                 <div className="card-body">
                   <h5 className="card-title">{item.name}</h5>
-                  <p className="card-text">{item.description}</p>
+                  <p
+                    className="card-text"
+                    style={{
+                      whiteSpace: "nowrap",
+                      overflow: "hidden",
+                      textOverflow: "ellipsis",
+                    }}
+                  >
+                    {item.description}
+                  </p>
                 </div>
                 <div className="card-footer text-muted border-top-0">
                   {item.created_at}
@@ -108,6 +125,24 @@ function TestimonialList() {
               </div>
             </div>
           ))}
+          {/* Pagination */}
+          <div className="d-flex justify-content-center">
+            <Pagination
+            count={Math.ceil(total / limit)}
+            variant="outlined"
+            shape="rounded"
+            color="primary"
+            size="large"
+            defaultPage={1}
+            onChange={(e,value) => setPage(value)}
+            sx={{
+              "& .MuiPaginationItem-root": {
+                color: "white", // Inactive buttons text
+                borderColor: "white", // Inactive buttons border
+              },
+            }}
+          />
+          </div>
         </div>
       </div>
 
