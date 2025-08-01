@@ -10,7 +10,9 @@ const schema = z.object({
   name: z.string().min(1, { message: "Enter Your Name" }),
   description: z.string().min(1, { message: "Enter Description" }),
   status: z.boolean().transform((val) => (val ? "A" : "I")),
-  image: z.instanceof(File).refine((file) => file.type.startsWith("image/"), {
+  image: z.instanceof(File, {
+  message: "Please upload a valid file",
+}).refine((file) => file.type.startsWith("image/"), {
     message: "Only image files are allowed",
   }),
 });
@@ -18,7 +20,6 @@ const schema = z.object({
 function TestimonialForm() {
 
   const [selectedImg, setSelectedImg] = useState("");
-
   const navigateList = useNavigate()
 
   const {
@@ -46,7 +47,6 @@ function TestimonialForm() {
     }).catch((err) => {
       console.log(err);
     })
-
     console.log(data);
   };
 
@@ -54,8 +54,6 @@ function TestimonialForm() {
     const File = input.target.files[0];
 
     const fileTypes = ["image/png","image/jpeg","image/gif"];
-
-    // const fileType = File.type
     
     if (fileTypes.includes(File.type)) {
       
